@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Login Successfull
+
                     login()
                 } else {
                     //Login Failed.. Sign up user
