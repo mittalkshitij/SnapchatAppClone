@@ -5,25 +5,16 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.UploadTask
 import java.io.ByteArrayOutputStream
 import java.util.*
-import com.google.firebase.storage.StorageReference
-
-
-
 
 
 class CreateSnapActivity : AppCompatActivity() {
@@ -31,6 +22,7 @@ class CreateSnapActivity : AppCompatActivity() {
     var createSnapImageView: ImageView? = null
     var messageEditText: EditText? = null
     val imageName = UUID.randomUUID().toString() + ".jpg"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +61,11 @@ class CreateSnapActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == 1) {
@@ -89,23 +85,36 @@ class CreateSnapActivity : AppCompatActivity() {
         val data = baos.toByteArray()
 
 
-
-        val uploadTask = FirebaseStorage.getInstance().getReference().child("images").child(imageName).putBytes(data)
+        val uploadTask =
+            FirebaseStorage.getInstance().getReference().child("images").child(imageName)
+                .putBytes(data)
         uploadTask.addOnSuccessListener {
-            // Handle unsuccessful uploads
-            Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
+
             var url: String = ""
-            var task = it.storage.downloadUrl
+            val task = it.storage.downloadUrl
             uploadTask.addOnSuccessListener {
-                url = task.getResult().toString()
-                Log.i("URL   ", url)
+
                 Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
 
-            }.addOnFailureListener({ taskSnapshot ->
-            Toast.makeText(this, "UploadFailed", Toast.LENGTH_SHORT).show()
-        })
+                val intent = Intent(this, ChooseUserActivity::class.java)
+                intent.putExtra("imageURL",task.toString())
+                intent.putExtra("imagename",imageName)
+                intent.putExtra("message",messageEditText?.text.toString())
+
+                startActivity(intent)
+
+            }.addOnFailureListener { taskSnapshot ->
+                Toast.makeText(this, "UploadFailed", Toast.LENGTH_SHORT).show()
+            }
 
         }
     }
+
+    fun chooseUser() {
+
+    }
+
+
 }
+
 
