@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SnapchatClone">
         <activity
+            android:name=".ViewSnapActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChooseUserActivity"
             android:exported="false" />
         <activity
