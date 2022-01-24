@@ -47,7 +47,7 @@ class ChooseUserActivity : AppCompatActivity() {
 
         chooseUserListView?.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
 
-            val snapMap: Map<String, String?> = mapOf("from" to FirebaseAuth.getInstance().currentUser!!.email!!,"imageName" to intent.getStringExtra("imagename"),"imageURL" to intent.getStringExtra("imageURL"), "message" to intent.getStringExtra("message"))
+            val snapMap: Map<String, String?> = mapOf("from" to FirebaseAuth.getInstance().currentUser!!.email!!,"imageName" to intent.getStringExtra("imageName"),"imageURL" to intent.getStringExtra("imageURL"), "message" to intent.getStringExtra("message"))
 
             FirebaseDatabase.getInstance().reference.child("users").child(keys.get(i)).child("snaps").push().setValue(snapMap)
 

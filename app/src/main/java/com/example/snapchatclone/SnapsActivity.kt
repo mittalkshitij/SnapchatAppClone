@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.example.snapchatclone.R
@@ -20,6 +21,7 @@ class SnapsActivity : AppCompatActivity() {
 
     var snapsListView:ListView?=null
     var emails: ArrayList<String> = ArrayList()
+    var snaps:ArrayList<DataSnapshot> = ArrayList()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,15 +38,43 @@ class SnapsActivity : AppCompatActivity() {
             ).child("snaps").addChildEventListener(object : ChildEventListener{
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                         emails.add(snapshot.child("from").value as String)
+                        snaps.add(snapshot)
                         adapter.notifyDataSetChanged()
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
                 override fun onChildRemoved(snapshot: DataSnapshot) {}
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    var index=0
+                    for(snap:DataSnapshot in snaps)
+                    {
+                        if(snap.key==snapshot?.key)
+                        {
+                            snaps.removeAt(index)
+                            emails.removeAt(index)
+
+                        }
+                        index++
+                    }
+                    adapter.notifyDataSetChanged()
+                }
                 override fun onCancelled(error: DatabaseError) {}
             })
         }
+
+        snapsListView?.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
+            val snapshot=snaps.get(i)
+
+            var intent=Intent(this,ViewSnapActivity::class.java)
+            intent.putExtra("imagename",snapshot.child("imageName").value as String)
+            intent.putExtra("imageURL",snapshot.child("imageURL").value as String)
+            intent.putExtra("message",snapshot.child("message").value as String)
+            intent.putExtra("snapKey",snapshot.key)
+
+            startActivity(intent)
+        }
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
@@ -12,7 +13,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.Task
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.UploadTask
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -85,33 +89,28 @@ class CreateSnapActivity : AppCompatActivity() {
         val data = baos.toByteArray()
 
 
-        val uploadTask =
-            FirebaseStorage.getInstance().getReference().child("images").child(imageName)
-                .putBytes(data)
-        uploadTask.addOnSuccessListener {
+        val ref = FirebaseStorage.getInstance().getReference().child("images").child(imageName)
+        val uploadTask = ref.putBytes(data)
 
-            var url: String = ""
-            val task = it.storage.downloadUrl
-            uploadTask.addOnSuccessListener {
+        val urlTask =
+            uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        Toast.makeText(this, "Upload failed", Toast.LENGTH_SHORT).show()
+                        throw it
+                    }
+                }
+                return@Continuation ref.downloadUrl
+            }).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
 
-                Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
-
-                val intent = Intent(this, ChooseUserActivity::class.java)
-                intent.putExtra("imageURL",task.toString())
-                intent.putExtra("imagename",imageName)
-                intent.putExtra("message",messageEditText?.text.toString())
-
-                startActivity(intent)
-
-            }.addOnFailureListener { taskSnapshot ->
-                Toast.makeText(this, "UploadFailed", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, ChooseUserActivity::class.java)
+                    intent.putExtra("imageURL", task.result.toString())
+                    intent.putExtra("imageName", imageName)
+                    intent.putExtra("message", messageEditText?.text.toString())
+                    startActivity(intent)
+                }
             }
-
-        }
-    }
-
-    fun chooseUser() {
-
     }
 
 
