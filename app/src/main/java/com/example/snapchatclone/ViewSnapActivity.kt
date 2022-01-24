@@ -75,7 +75,7 @@ class ViewSnapActivity : AppCompatActivity() {
         }
 
 
-                FirebaseStorage.getInstance().getReference().child("images").child(intent.getStringExtra("imageName")
+                FirebaseStorage.getInstance().getReference().child("images").child(intent.getStringExtra("imagename")
                     .toString()).delete()
     }
 }

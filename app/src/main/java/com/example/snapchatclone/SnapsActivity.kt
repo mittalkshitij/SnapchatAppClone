@@ -43,21 +43,19 @@ class SnapsActivity : AppCompatActivity() {
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-                override fun onChildRemoved(snapshot: DataSnapshot) {}
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    var index=0
-                    for(snap:DataSnapshot in snaps)
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    for((index, snap:DataSnapshot) in snaps.withIndex())
                     {
-                        if(snap.key==snapshot?.key)
+                        if(snap.key==snapshot.key)
                         {
                             snaps.removeAt(index)
                             emails.removeAt(index)
 
                         }
-                        index++
                     }
                     adapter.notifyDataSetChanged()
                 }
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
                 override fun onCancelled(error: DatabaseError) {}
             })
         }
